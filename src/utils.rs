@@ -34,7 +34,7 @@ pub fn bits_extend_to_256(mut bits: Vec<bool>) -> Vec<bool> {
 
 pub fn bits_to_bytes(bits: Vec<bool>) -> MerkleRoot {
     assert!(bits.len() % 8 == 0);
-    
+
     let mut temp = BitVec::from_elem(bits.len(), false);
     for (i, bit) in bits.iter().enumerate() {
         temp.set(i, *bit);

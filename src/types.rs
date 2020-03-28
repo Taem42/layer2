@@ -11,6 +11,21 @@ pub struct Block {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct Txs {
+    inner: Vec<Tx>,
+}
+
+impl Txs {
+    pub fn new(inner: Vec<Tx>) -> Txs {
+        Txs { inner }
+    }
+
+    pub fn to_inner(self) -> Vec<Tx> {
+        self.inner
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Tx {
     from:   u16,
     to:     u16,

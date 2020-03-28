@@ -37,6 +37,7 @@ impl Storage {
             .open(dir)
             .unwrap();
 
-        file.write_all(&data.into_bytes()).unwrap();
+        file.write_all(&data.into_bytes())
+            .expect("Could not write block to file");
     }
 }

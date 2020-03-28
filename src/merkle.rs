@@ -1,7 +1,6 @@
-use bit_vec::BitVec;
 use sha2::{Digest, Sha256};
 
-use crate::utils::{convert_u128_to_bits, convert_u16_to_bits};
+use crate::utils::{bits_extend_to_256, bits_to_bytes, convert_u128_to_bits, convert_u16_to_bits};
 use crate::MerkleRoot;
 
 struct Leaf {
@@ -80,31 +79,6 @@ impl MerkleTree {
     fn restore_root(&mut self) {
         self.root = recursion_merkle_hash(self.leaves.iter().map(|f| f.hash()).collect::<Vec<_>>());
     }
-}
-
-fn bits_extend_to_256(mut bits: Vec<bool>) -> Vec<bool> {
-    assert!(bits.len() < 256);
-
-    let len = 256 - bits.len();
-    let mut temp = Vec::new();
-
-    for _i in 0..len {
-        temp.push(false);
-    }
-
-    bits.extend(temp.into_iter());
-    bits
-}
-
-fn bits_to_bytes(bits: Vec<bool>) -> MerkleRoot {
-    assert!(bits.len() % 8 == 0);
-    let mut temp = BitVec::from_elem(bits.len(), false);
-
-    for i in 0..bits.len() {
-        temp.set(i, bits[i]);
-    }
-
-    temp.to_bytes()
 }
 
 fn merkle_two_hash(one: MerkleRoot, two: MerkleRoot) -> MerkleRoot {

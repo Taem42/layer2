@@ -1,8 +1,6 @@
 use std::time::Duration;
 
 use futures_timer::Delay;
-use log::info;
-use serde_json::to_string_pretty;
 
 use crate::executor::Executor;
 use crate::types::{Block, Tx};
@@ -56,12 +54,15 @@ where
             };
 
             let block = self.generate_block(txs, state_roots);
-            self.storage
-                .write(self.height, to_string_pretty(&block).unwrap());
+            self.storage.write(
+                self.height,
+                serde_json::to_string(&block).expect("Could not serialize txs to json"),
+            );
 
-            info!(
+            log::info!(
                 "layer 2 height {}, transaction count {}",
-                self.height, tx_count
+                self.height,
+                tx_count
             );
             self.height += 1;
         }
@@ -69,6 +70,7 @@ where
 
     fn generate_block(&self, txs: Vec<Tx>, state_roots: Vec<MerkleRoot>) -> Block {
         assert!(!state_roots.is_empty());
+
         Block {
             height: self.height,
             latest_state_root: state_roots.last().unwrap().clone(),

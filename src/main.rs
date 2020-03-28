@@ -9,14 +9,13 @@ mod storage;
 mod types;
 mod utils;
 
-use std::io::{Read, Write};
+use std::io::{Read, Write, BufRead, BufReader};
 use std::time::Duration;
 
 use futures::channel::mpsc;
 use futures_timer::Delay;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
-use tokio::net::UnixStream;
 
 use crate::consensus::Consensus;
 use crate::mempool::Mempool;
@@ -27,7 +26,7 @@ pub type MerkleRoot = Vec<u8>;
 
 const GET_TXS_INTERVAL: u64 = 100;
 static DATA_PATH: &str = "./data";
-static TX_PATH: &str = "./tx.json";
+static TX_PATH: &str = "./tx.list";
 
 #[tokio::main]
 async fn main() {
@@ -66,23 +65,21 @@ async fn main() {
 // }
 
 async fn read_txs(txs_sender: mpsc::UnboundedSender<Tx>, path: String) {
+    let file = std::fs::OpenOptions::new()
+        .read(true)
+        .open(path.clone())
+        .expect("Could not open txs file");
+
+    let mut reader = BufReader::new(file);
     loop {
-        Delay::new(Duration::from_millis(GET_TXS_INTERVAL)).await;
-
-        let mut file = std::fs::OpenOptions::new()
-            .read(true)
-            .write(true)
-            .open(path.clone())
-            .expect("Could not open txs file");
-
-        let mut buf = String::new();
-        file.read_to_string(&mut buf)
-            .expect("Could not read txs file");
-        file.write_all(&[]).expect("Could not write txs file");
-        let txs: Txs = serde_json::from_str(&buf).expect("Could not deserialize txs from json");
-
-        for tx in txs.to_inner().into_iter() {
-            txs_sender.clone().unbounded_send(tx).unwrap();
+        let mut line = String::new();
+        reader.read_line(&mut line).unwrap();
+        if line.is_empty() || line.len() <= 2 {
+            std::thread::sleep(std::time::Duration::from_secs(3));
+            continue
         }
+        let tx: Tx = serde_json::from_str(&line).expect("Could not deserialize txs from json");
+        println!("{:?}", tx);
+        txs_sender.clone().unbounded_send(tx).unwrap();
     }
 }

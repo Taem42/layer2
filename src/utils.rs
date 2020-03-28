@@ -36,8 +36,8 @@ pub fn bits_to_bytes(bits: Vec<bool>) -> MerkleRoot {
     assert!(bits.len() % 8 == 0);
     let mut temp = BitVec::from_elem(bits.len(), false);
 
-    for i in 0..bits.len() {
-        temp.set(i, bits[i]);
+    for (i, bit) in bits.iter().enumerate() {
+        temp.set(i, *bit);
     }
 
     temp.to_bytes()

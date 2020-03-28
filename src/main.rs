@@ -58,7 +58,7 @@ async fn read_txs(txs_sender: mpsc::UnboundedSender<Tx>) {
         let mut buf = String::new();
         file.read_to_string(&mut buf)
             .expect("Could not read txs file");
-        file.write_all(&vec![]).expect("Could not write txs file");
+        file.write_all(&[]).expect("Could not write txs file");
         let txs: Txs = serde_json::from_str(&buf).expect("Could not deserialize txs from json");
 
         for tx in txs.to_inner().into_iter() {

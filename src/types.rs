@@ -20,8 +20,8 @@ impl Txs {
         Txs { inner }
     }
 
-    pub fn to_inner(self) -> Vec<Tx> {
-        self.inner
+    pub fn to_inner(&self) -> Vec<Tx> {
+        self.inner.clone()
     }
 }
 

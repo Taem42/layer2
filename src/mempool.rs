@@ -36,12 +36,9 @@ impl Mempool {
     }
 
     pub fn package(&self) -> Vec<Tx> {
-        let txs = {
-            let mut buf = self.buffer.lock();
-            let temp = buf.clone();
-            buf.clear();
-            temp
-        };
-        txs
+        let mut buf = self.buffer.lock();
+        let temp = buf.clone();
+        buf.clear();
+        temp
     }
 }
